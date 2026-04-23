@@ -1,6 +1,6 @@
 # Chromium Version Dashboard
 
-A dashboard that shows which Chromium version each major browser is currently shipping. Chrome Stable is used as the baseline; other browsers are color-coded by how many major versions behind they are.
+A dashboard that shows which Chromium version each major browser is currently shipping. Chrome Stable is used as the baseline; other browsers are color-coded by how many major versions behind they are. >1 version behind lists up as a warning.
 
 Hosted on Cloudflare Pages.
 

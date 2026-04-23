@@ -1,0 +1,42 @@
+# Chromium Version Dashboard
+
+A dashboard that shows which Chromium version each major browser is currently shipping. Chrome Stable is used as the baseline; other browsers are color-coded by how many major versions behind they are.
+
+Hosted on Cloudflare Pages.
+
+## Tracked browsers
+
+| Browser | Precision | Source |
+|---|---|---|
+| Chrome Stable (baseline) | Full version | ChromiumDash API |
+| Brave Release | Full version | GitHub Releases API |
+| Vivaldi Release | Full version | Sparkle appcast + release notes |
+| Edge | Major only | Microsoft Edge Updates API |
+| Opera | Major only | FTP directory listing |
+| Perplexity Comet | Major only | Uptodown.com version string |
+
+### How each version is fetched
+
+**Chrome Stable**: Calls `chromiumdash.appspot.com/fetch_releases` for the latest Windows stable release. The JSON response includes the full version and milestone directly.
+
+**Brave Release**: Fetches the last 30 releases from `api.github.com/repos/brave/brave-browser/releases`. Skips prereleases and non-stable channels, then regex-extracts the Chromium version from the release name (e.g., "Release v1.89.143 (Chromium 147.0.7727.117)").
+
+**Vivaldi Release**: Two-step. First fetches the Sparkle appcast XML at `update.vivaldi.com` to get the release notes URL. Then fetches that HTML page and regex-matches the Chromium version string (e.g., "[Chromium] Updated to 146.0.7680.211").
+
+**Edge**: Calls `edgeupdates.microsoft.com/api/products`, filters for the "Stable" product and a Windows x64 release. Edge and Chromium share the same major version number, so the Edge version major is the Chromium major. Full Chromium build numbers differ, so only the major is reported.
+
+**Opera**: Fetches the directory listing at `ftp.opera.com/pub/opera/desktop/`, finds the highest Opera major version from folder names, then adds 16 to estimate the Chromium major. This offset has historically been stable but could drift if Opera skips a release cycle.
+
+**Perplexity Comet**: Fetches Uptodown's download page for Comet. Comet's version string uses the Chromium major as its first component (e.g., `145.2.7632.5936` = Chromium 145). No first-party API exists.
+
+## How it works
+
+`index.html` is a static page that calls `/api` on load. `/api` is a Cloudflare Pages Function (`functions/api.js`) that fetches version data from each browser's public endpoint in parallel and returns JSON.
+
+Responses are cached at the Cloudflare edge for 30 minutes (`s-maxage=1800`) and in the browser for 5 minutes (`max-age=300`). The "Refresh" button appends a cache-busting query parameter.
+
+## Local development
+
+```bash
+npx wrangler pages dev .
+```

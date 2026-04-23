@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chromium Version Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --green: #059669;
+      --green-bg: #ecfdf5;
+      --yellow: #d97706;
+      --yellow-bg: #fffbeb;
+      --orange: #ea580c;
+      --orange-bg: #fff7ed;
+      --red: #dc2626;
+      --red-bg: #fef2f2;
+      --gray: #6b7280;
+      --gray-bg: #f9fafb;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --surface: #1f2937;
+        --text: #f3f4f6;
+        --text-muted: #9ca3af;
+        --border: #374151;
+        --green-bg: #064e3b;
+        --yellow-bg: #78350f;
+        --orange-bg: #7c2d12;
+        --red-bg: #7f1d1d;
+        --gray-bg: #1f2937;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+    }
+    header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    header .subtitle { color: var(--text-muted); font-size: 14px; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 32px;
+      flex-wrap: wrap;
+    }
+    .toolbar .meta { color: var(--text-muted); font-size: 13px; }
+    .toolbar button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .toolbar button:hover { opacity: 0.85; }
+    .toolbar button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    main { padding: 0 32px 48px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+    .card.reference { border-color: var(--accent); border-width: 2px; }
+    .card .browser-name {
+      font-size: 15px; font-weight: 600; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card .browser-name .ref-badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; background: var(--accent); color: #fff;
+      padding: 2px 7px; border-radius: 4px;
+    }
+    .card .cr-major { font-size: 40px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+    .card .cr-full { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; min-height: 18px; }
+    .card .delta {
+      display: inline-block; font-size: 12px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .delta-0 { background: var(--green-bg); color: var(--green); }
+    .delta-1 { background: var(--yellow-bg); color: var(--yellow); }
+    .delta-2 { background: var(--orange-bg); color: var(--orange); }
+    .delta-3 { background: var(--red-bg); color: var(--red); }
+    .delta-unknown { background: var(--gray-bg); color: var(--gray); }
+    .card .source { margin-top: 12px; font-size: 11px; color: var(--text-muted); }
+    .card.error-card .cr-major { font-size: 16px; font-weight: 500; color: var(--red); }
+
+    .loading-state {
+      text-align: center; padding: 80px 20px;
+      color: var(--text-muted); font-size: 15px;
+    }
+    .spinner {
+      display: inline-block; width: 28px; height: 28px;
+      border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      header, .toolbar, main { padding-left: 16px; padding-right: 16px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Chromium Version Dashboard</h1>
+    <div class="subtitle">Which Chromium version is each browser shipping?</div>
+  </header>
+
+  <div class="toolbar">
+    <button id="refresh-btn" onclick="refresh()">Refresh</button>
+    <span class="meta" id="status">Loading...</span>
+  </div>
+
+  <main>
+    <div id="content">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div>Fetching browser versions...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const ORDER = [
+      "Chrome Stable", "Brave Release", "Vivaldi Release",
+      "Comet Release", "Opera", "Edge",
+    ];
+
+    function esc(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function dCls(d) {
+      if (d == null) return "delta-unknown";
+      if (d <= 1) return "delta-0";
+      if (d === 2) return "delta-1";
+      return "delta-3";
+    }
+
+    function dLabel(d, ref) {
+      if (ref) return "baseline";
+      if (d == null) return "unknown";
+      if (d === 0) return "up to date";
+      return d + " major version" + (d > 1 ? "s" : "") + " behind";
+    }
+
+    function render(payload) {
+      const { data, fetchedAt } = payload;
+      const chrome = data.find((b) => b.browser === "Chrome Stable");
+      const base = chrome && chrome.chromiumMajor;
+
+      const sorted = ORDER.map((n) => data.find((b) => b.browser === n)).filter(Boolean);
+      for (const b of data) if (!sorted.includes(b)) sorted.push(b);
+
+      const grid = document.createElement("div");
+      grid.className = "grid";
+
+      for (const e of sorted) {
+        const ref = e.browser === "Chrome Stable";
+        const err = !!e.error;
+        const delta = base != null && e.chromiumMajor != null ? base - e.chromiumMajor : null;
+
+        const c = document.createElement("div");
+        c.className = "card" + (ref ? " reference" : "") + (err ? " error-card" : "");
+
+        c.innerHTML = err
+          ? '<div class="browser-name">' + esc(e.browser) + '</div>' +
+            '<div class="cr-major">Unavailable</div>' +
+            '<div class="cr-full">' + esc(e.error) + '</div>' +
+            '<span class="delta ' + dCls(null) + '">' + dLabel(null) + '</span>'
+          : '<div class="browser-name">' + esc(e.browser) +
+              (ref ? ' <span class="ref-badge">baseline</span>' : '') + '</div>' +
+            '<div class="cr-major">' + (e.chromiumMajor || "?") + '</div>' +
+            '<div class="cr-full">' +
+              (e.chromiumVersion ? esc(e.chromiumVersion) : "major version only") + '</div>' +
+            '<span class="delta ' + dCls(delta) + '">' + dLabel(delta, ref) + '</span>' +
+            '<div class="source">via ' + esc(e.source) + '</div>';
+
+        grid.appendChild(c);
+      }
+
+      const el = document.getElementById("content");
+      el.innerHTML = "";
+      el.appendChild(grid);
+      document.getElementById("status").textContent =
+        "Last fetched: " + new Date(fetchedAt).toLocaleString();
+    }
+
+    async function load(bust) {
+      const btn = document.getElementById("refresh-btn");
+      btn.disabled = true;
+      try {
+        const url = "./api" + (bust ? "?t=" + Date.now() : "");
+        const r = await fetch(url);
+        if (!r.ok) throw new Error("API returned " + r.status);
+        render(await r.json());
+      } catch (err) {
+        document.getElementById("status").textContent = "Error: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function refresh() { load(true); }
+    load(false);
+    setInterval(() => load(false), 5 * 60 * 1000);
+  </script>
+</body>
+</html>

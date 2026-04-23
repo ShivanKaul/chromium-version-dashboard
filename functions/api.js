@@ -38,12 +38,12 @@ async function chrome() {
   const stableDate = data.mstones?.[0]?.stable_date;
 
   if (!stableDate || new Date(stableDate).getTime() <= Date.now()) {
-    return ok("Chrome Stable", latest.version, latest.milestone, "chromiumdash.appspot.com");
+    return ok("Chrome Stable", latest.version, latest.milestone, "chromiumdash.appspot.com (Windows)");
   }
   // Latest is still early stable; use previous milestone
   const prev = releases.find((rel) => rel.milestone < latest.milestone);
-  if (prev) return ok("Chrome Stable", prev.version, prev.milestone, "chromiumdash.appspot.com");
-  return ok("Chrome Stable", latest.version, latest.milestone, "chromiumdash.appspot.com");
+  if (prev) return ok("Chrome Stable", prev.version, prev.milestone, "chromiumdash.appspot.com (Windows)");
+  return ok("Chrome Stable", latest.version, latest.milestone, "chromiumdash.appspot.com (Windows)");
 }
 
 // --- Edge ---
@@ -57,7 +57,7 @@ async function edge() {
     s.Releases[0];
   if (!rel) throw new Error("no release");
   const major = parseInt(rel.ProductVersion, 10);
-  return ok("Edge", null, major, "edgeupdates.microsoft.com");
+  return ok("Edge", null, major, "edgeupdates.microsoft.com (Windows)");
 }
 
 // --- Brave ---
@@ -81,7 +81,7 @@ async function vivaldi() {
   const nr = await f(nm[1].trim(), {}, 10000);
   const html = await nr.text();
   const cm = html.match(/Chromium[^\d]{0,60}(\d+\.\d+\.\d+\.\d+)/i);
-  if (cm) return ok("Vivaldi Release", cm[1], parseInt(cm[1], 10), "update.vivaldi.com");
+  if (cm) return ok("Vivaldi Release", cm[1], parseInt(cm[1], 10), "update.vivaldi.com (Windows)");
   throw new Error("not found in notes");
 }
 
@@ -112,7 +112,7 @@ async function comet() {
   if (m) {
     const major = parseInt(m[1], 10);
     if (major >= 100 && major <= 250)
-      return ok("Comet Release", null, major, "uptodown.com (version scheme)");
+      return ok("Comet Release", null, major, "uptodown.com (Windows, version scheme)");
   }
   throw new Error("not found");
 }

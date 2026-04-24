@@ -2,8 +2,19 @@
   "chrome": {},
   "edge": {},
   "brave": {},
-  "vivaldi": {},
-  "opera": {},
-  "comet": {},
+  "vivaldi": {
+    "chromiumMajor": 146,
+    "lastUpdated": "2026-04-24",
+    "chromiumVersion": "146.0.7680.211"
+  },
+  "opera": {
+    "chromiumMajor": 146,
+    "lastUpdated": "2026-04-24",
+    "chromiumVersion": "146.0.7680.201"
+  },
+  "comet": {
+    "chromiumMajor": 145,
+    "lastUpdated": "2026-04-24"
+  },
   "atlas": {}
 }

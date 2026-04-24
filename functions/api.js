@@ -38,12 +38,12 @@ async function chrome() {
   const stableDate = data.mstones?.[0]?.stable_date;
 
   if (!stableDate || new Date(stableDate).getTime() <= Date.now()) {
-    return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com)");
+    return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com, macOS)");
   }
   // Latest is still early stable; use previous milestone
   const prev = releases.find((rel) => rel.milestone < latest.milestone);
-  if (prev) return ok("Chrome Stable", prev.version, prev.milestone, "source: public API (chromiumdash.appspot.com)");
-  return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com)");
+  if (prev) return ok("Chrome Stable", prev.version, prev.milestone, "source: public API (chromiumdash.appspot.com, macOS)");
+  return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com, macOS)");
 }
 
 // --- Edge ---
@@ -57,7 +57,7 @@ async function edge() {
     s.Releases[0];
   if (!rel) throw new Error("no release");
   const major = parseInt(rel.ProductVersion, 10);
-  return ok("Edge", rel.ProductVersion, major, "source: public API (edgeupdates.microsoft.com)");
+  return ok("Edge", rel.ProductVersion, major, "source: public API (edgeupdates.microsoft.com, macOS)");
 }
 
 // --- Brave ---

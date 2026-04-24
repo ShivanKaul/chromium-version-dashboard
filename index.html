@@ -13,14 +13,14 @@
       --text-muted: #6b7280;
       --border: #e5e7eb;
       --accent: #2563eb;
-      --green: #059669;
-      --green-bg: #ecfdf5;
-      --yellow: #d97706;
-      --yellow-bg: #fffbeb;
-      --orange: #ea580c;
-      --orange-bg: #fff7ed;
-      --red: #dc2626;
-      --red-bg: #fef2f2;
+      --green: #15803d;
+      --green-bg: #bbf7d0;
+      --yellow: #a16207;
+      --yellow-bg: #fde68a;
+      --orange: #c2410c;
+      --orange-bg: #fdba74;
+      --red: #b91c1c;
+      --red-bg: #fca5a5;
       --gray: #6b7280;
       --gray-bg: #f9fafb;
     }
@@ -32,11 +32,14 @@
         --text: #f3f4f6;
         --text-muted: #9ca3af;
         --border: #374151;
-        --green-bg: #064e3b;
-        --yellow-bg: #78350f;
-        --orange-bg: #7c2d12;
-        --red-bg: #7f1d1d;
+        --green-bg: #065f46;
+        --yellow-bg: #92400e;
+        --orange-bg: #9a3412;
+        --red-bg: #991b1b;
         --gray-bg: #1f2937;
+      }
+      .delta-0, .delta-1, .delta-2, .delta-3 {
+        background: rgba(0,0,0,0.3);
       }
     }
 
@@ -92,10 +95,14 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 20px;
-      transition: box-shadow 0.15s;
+      transition: box-shadow 0.15s, background 0.2s, border-color 0.2s;
     }
     .card:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
     .card.reference { border-color: var(--accent); border-width: 2px; }
+    .card.card-green { background: var(--green-bg); border-color: var(--green); }
+    .card.card-yellow { background: var(--yellow-bg); border-color: var(--yellow); }
+    .card.card-orange { background: var(--orange-bg); border-color: var(--orange); }
+    .card.card-red { background: var(--red-bg); border-color: var(--red); }
     .card .browser-name {
       font-size: 15px; font-weight: 600; margin-bottom: 12px;
       display: flex; align-items: center; gap: 8px;
@@ -111,10 +118,10 @@
       display: inline-block; font-size: 12px; font-weight: 600;
       padding: 3px 10px; border-radius: 20px;
     }
-    .delta-0 { background: var(--green-bg); color: var(--green); }
-    .delta-1 { background: var(--yellow-bg); color: var(--yellow); }
-    .delta-2 { background: var(--orange-bg); color: var(--orange); }
-    .delta-3 { background: var(--red-bg); color: var(--red); }
+    .delta-0 { background: rgba(255,255,255,0.6); color: var(--green); }
+    .delta-1 { background: rgba(255,255,255,0.6); color: var(--yellow); }
+    .delta-2 { background: rgba(255,255,255,0.6); color: var(--orange); }
+    .delta-3 { background: rgba(255,255,255,0.6); color: var(--red); }
     .delta-unknown { background: var(--gray-bg); color: var(--gray); }
     .card .source { margin-top: 12px; font-size: 11px; color: var(--text-muted); }
     .card.error-card .cr-major { font-size: 16px; font-weight: 500; color: var(--red); }
@@ -185,6 +192,14 @@
       return "delta-3";
     }
 
+    function cardColorCls(d) {
+      if (d == null) return "";
+      if (d === 0) return "card-green";
+      if (d === 1) return "card-yellow";
+      if (d === 2) return "card-orange";
+      return "card-red";
+    }
+
     function dLabel(d, ref) {
       if (ref) return "baseline";
       if (d == null) return "unknown";
@@ -249,6 +264,9 @@
               span.className = "delta " + dCls(delta);
               span.textContent = dLabel(delta, browser === "Chrome Stable");
             }
+            c.classList.remove("card-green", "card-yellow", "card-orange", "card-red");
+            const cc = cardColorCls(delta);
+            if (cc) c.classList.add(cc);
           }
         }
       }
@@ -265,7 +283,9 @@
         grid.appendChild(c);
       }
 
-      c.className = "card" + (ref ? " reference" : "") + (err ? " error-card" : "");
+      const delta = chromeMajor != null && e.chromiumMajor != null ? chromeMajor - e.chromiumMajor : null;
+      const cc = cardColorCls(delta);
+      c.className = "card" + (ref ? " reference" : "") + (err ? " error-card" : "") + (cc ? " " + cc : "");
       c.dataset.loaded = "1";
       c.dataset.chromiumMajor = e.chromiumMajor != null ? e.chromiumMajor : "";
       c.innerHTML = cardHTML(e);

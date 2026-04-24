@@ -233,10 +233,19 @@ async function detectAtlas() {
     // First, list contents to find the inner plist path.
     const extractDir = join(tmp, "extracted");
 
-    // Step 1: extract the DMG (may produce an HFS image or files directly)
-    execSync(`${SZ} x -o"${extractDir}" "${dmgPath}" -y 2>&1`, {
-      timeout: 60_000,
-    });
+    // Step 1: extract the DMG (may produce an HFS image or files directly).
+    // 7z may exit non-zero due to "Dangerous link path" warnings from macOS
+    // installer symlinks (e.g., /Applications). This is harmless; the actual
+    // files are still extracted.
+    try {
+      execSync(`${SZ} x -o"${extractDir}" "${dmgPath}" -y 2>&1`, {
+        timeout: 60_000,
+      });
+    } catch (e) {
+      // Only tolerate "Dangerous link path" errors
+      const out = (e.stdout || e.stderr || "").toString();
+      if (!out.includes("Dangerous link path")) throw e;
+    }
 
     // Step 2: find and extract from HFS image if present
     let plistContent;
@@ -336,7 +345,10 @@ for (const { key, name, detect, source } of browsers) {
       "\n"
     );
   } catch (e) {
-    console.error("[" + name + "] FAILED: " + e.message + "\n");
+    console.error("[" + name + "] FAILED: " + e.message);
+    if (e.stderr) console.error("  stderr: " + e.stderr.toString().trim());
+    if (e.stdout) console.error("  stdout: " + e.stdout.toString().trim());
+    console.error("");
     failures++;
   }
 }

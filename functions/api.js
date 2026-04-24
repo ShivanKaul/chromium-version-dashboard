@@ -38,12 +38,12 @@ async function chrome() {
   const stableDate = data.mstones?.[0]?.stable_date;
 
   if (!stableDate || new Date(stableDate).getTime() <= Date.now()) {
-    return ok("Chrome Stable", latest.version, latest.milestone, "via public API (chromiumdash.appspot.com)");
+    return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com)");
   }
   // Latest is still early stable; use previous milestone
   const prev = releases.find((rel) => rel.milestone < latest.milestone);
-  if (prev) return ok("Chrome Stable", prev.version, prev.milestone, "public API (chromiumdash.appspot.com)");
-  return ok("Chrome Stable", latest.version, latest.milestone, "via public API (chromiumdash.appspot.com)");
+  if (prev) return ok("Chrome Stable", prev.version, prev.milestone, "source: public API (chromiumdash.appspot.com)");
+  return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com)");
 }
 
 // --- Edge ---
@@ -57,7 +57,7 @@ async function edge() {
     s.Releases[0];
   if (!rel) throw new Error("no release");
   const major = parseInt(rel.ProductVersion, 10);
-  return ok("Edge", rel.ProductVersion, major, "via public API (edgeupdates.microsoft.com)");
+  return ok("Edge", rel.ProductVersion, major, "source: public API (edgeupdates.microsoft.com)");
 }
 
 // --- Brave ---
@@ -67,7 +67,7 @@ async function brave() {
   for (const info of Object.values(data)) {
     if (info.channel !== "release") continue;
     const ver = info.dependencies?.chrome;
-    if (ver) return ok("Brave Release", ver, parseInt(ver, 10), "via public API (versions.brave.com)");
+    if (ver) return ok("Brave Release", ver, parseInt(ver, 10), "source: public API (versions.brave.com)");
   }
   throw new Error("no release channel found");
 }
@@ -81,7 +81,7 @@ async function vivaldi() {
   const nr = await f(nm[1].trim(), {}, 10000);
   const html = await nr.text();
   const cm = html.match(/Chromium[^\d]{0,60}(\d+\.\d+\.\d+\.\d+)/i);
-  if (cm) return ok("Vivaldi Release", cm[1], parseInt(cm[1], 10), "release notes (update.vivaldi.com)");
+  if (cm) return ok("Vivaldi Release", cm[1], parseInt(cm[1], 10), "source: scraped release notes (vivaldi.com)");
   throw new Error("not found in notes");
 }
 
@@ -101,10 +101,10 @@ async function opera() {
   const pr = await f(best[1], ua, 10000);
   const page = await pr.text();
   const cm = page.match(/Chromium[^\d]{0,80}(\d+\.\d+\.\d+\.\d+)/i);
-  if (cm) return ok("Opera", cm[1], parseInt(cm[1], 10), "blog (blogs.opera.com/desktop)");
+  if (cm) return ok("Opera", cm[1], parseInt(cm[1], 10), "source: scraped blog posts (blogs.opera.com)");
   // Fallback: major-only match (e.g., "Chromium 113")
   const mm = page.match(/Chromium[^\d]{0,80}(\d{3,})/i);
-  if (mm) return ok("Opera", null, parseInt(mm[1], 10), "blog (blogs.opera.com/desktop)");
+  if (mm) return ok("Opera", null, parseInt(mm[1], 10), "source: scraped blog posts (blogs.opera.com)");
   throw new Error("Chromium version not found in post");
 }
 
@@ -121,7 +121,7 @@ async function comet() {
   if (m) {
     const major = parseInt(m[1], 10);
     if (major >= 100 && major <= 250)
-      return ok("Comet Release", null, major, "uptodown.com");
+      return ok("Comet Release", null, major, "source: uptodown.com download page");
   }
   throw new Error("not found");
 }
@@ -141,7 +141,7 @@ function fromOverride(name, entry) {
     name,
     entry.chromiumVersion || null,
     entry.chromiumMajor,
-    "manual override" + (entry.lastUpdated ? " (" + entry.lastUpdated + ")" : "")
+    "source: manual override" + (entry.lastUpdated ? " (" + entry.lastUpdated + ")" : "")
   );
 }
 

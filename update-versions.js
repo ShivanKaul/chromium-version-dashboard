@@ -306,6 +306,7 @@ const data = JSON.parse(readFileSync(jsonPath, "utf8"));
 const today = new Date().toISOString().slice(0, 10);
 
 let changed = false;
+let failures = 0;
 
 for (const { key, name, detect, source } of browsers) {
   try {
@@ -330,6 +331,7 @@ for (const { key, name, detect, source } of browsers) {
     );
   } catch (e) {
     console.error("[" + name + "] FAILED: " + e.message + "\n");
+    failures++;
   }
 }
 
@@ -338,4 +340,9 @@ if (changed) {
   console.log("Updated ci-versions.json");
 } else {
   console.log("No changes to ci-versions.json");
+}
+
+if (failures) {
+  console.error(failures + " browser(s) failed");
+  process.exit(1);
 }

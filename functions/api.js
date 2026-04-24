@@ -105,7 +105,7 @@ const fetchers = [
 const ciBrowsers = [
   { name: "Vivaldi Release", key: "vivaldi" },
   { name: "Opera", key: "opera" },
-  { name: "Atlas", key: "atlas" },
+  { name: "ChatGPT Atlas", key: "atlas" },
 ];
 
 function fromEntry(name, entry, sourcePrefix) {

@@ -4,9 +4,9 @@
 // Browsers handled:
 //   Opera    -- download .deb, run strings on binary
 //   Vivaldi  -- download .deb, run strings on binary
-//   Atlas    -- download macOS DMG via Sparkle appcast, extract plist
+//   ChatGPT Atlas -- download macOS DMG via Sparkle appcast, extract plist
 //
-// Requires: Node 20+, p7zip-full (for .deb and Atlas DMG extraction)
+// Requires: Node 20+, p7zip-full (for .deb and ChatGPT Atlas DMG extraction)
 // Usage:    node update-versions.js
 
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
@@ -196,7 +196,7 @@ async function detectVivaldi() {
 }
 
 async function detectAtlas() {
-  console.log("[Atlas] Fetching Sparkle appcast...");
+  console.log("[ChatGPT Atlas] Fetching Sparkle appcast...");
   const r = await f(
     "https://persistent.oaistatic.com/atlas/public/sparkle_public_appcast.xml"
   );
@@ -298,7 +298,7 @@ async function detectAtlas() {
 const browsers = [
   { key: "opera", name: "Opera", detect: detectOpera, source: "extracted from Linux .deb binary" },
   { key: "vivaldi", name: "Vivaldi", detect: detectVivaldi, source: "extracted from Linux .deb binary" },
-  { key: "atlas", name: "Atlas", detect: detectAtlas, source: "extracted from macOS DMG plist" },
+  { key: "atlas", name: "ChatGPT Atlas", detect: detectAtlas, source: "extracted from macOS DMG plist" },
 ];
 
 const jsonPath = new URL("./ci-versions.json", import.meta.url).pathname;

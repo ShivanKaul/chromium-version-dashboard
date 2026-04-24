@@ -155,7 +155,7 @@ await test("Chromium version broad search: filters by third component > 1000", (
   assert(candidates.includes("146.0.7680.211"), "should include Chromium version");
 });
 
-await test("Atlas plist parsing: extracts CFBundleShortVersionString", () => {
+await test("ChatGPT Atlas plist parsing: extracts CFBundleShortVersionString", () => {
   const plist = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0"><dict>
   <key>CFBundleName</key><string>Atlas</string>
@@ -168,7 +168,7 @@ await test("Atlas plist parsing: extracts CFBundleShortVersionString", () => {
   assert(m[1].trim() === "147.0.7727.24", "should extract version");
 });
 
-await test("Atlas Sparkle appcast: extracts DMG URL from highest build", () => {
+await test("ChatGPT Atlas Sparkle appcast: extracts DMG URL from highest build", () => {
   const xml = `<rss><channel>
     <item><sparkle:version>20260101000000000</sparkle:version>
       <enclosure url="https://example.com/old.dmg"/></item>
@@ -362,7 +362,7 @@ await test("Vivaldi: .deb Packages index has vivaldi-stable entry", async () => 
   assert(m, "should have a .deb filename");
 });
 
-await test("Atlas: Sparkle appcast has DMG enclosure", async () => {
+await test("ChatGPT Atlas: Sparkle appcast has DMG enclosure", async () => {
   const r = await f(
     "https://persistent.oaistatic.com/atlas/public/sparkle_public_appcast.xml"
   );

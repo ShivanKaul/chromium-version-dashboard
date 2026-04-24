@@ -34,21 +34,21 @@ Hosted on Cloudflare Pages.
 
 **Opera**: Downloads the Opera Linux .deb package, extracts the `opera` binary, and uses `strings` to find the embedded `Chrome/X.X.X.X` UA string.
 
-**ChatGPT Atlas**: Fetches the Sparkle appcast to find the latest DMG URL, downloads the DMG, extracts the inner Chromium app's `Info.plist` using 7z, and reads `CFBundleShortVersionString`. Atlas is macOS-only, so the plist extraction runs on Linux CI without needing a macOS runner.
+**ChatGPT Atlas**: Fetches the Sparkle appcast to find the latest DMG URL, downloads the DMG, extracts the inner Chromium app's `Info.plist` using 7z, and reads `CFBundleShortVersionString`. ChatGPT Atlas is macOS-only, so the plist extraction runs on Linux CI without needing a macOS runner.
 
 ## How it works
 
-`index.html` is a static page that calls `/api` on load. `/api` is a Cloudflare Pages Function (`functions/api.js`) that returns version data as NDJSON. Chrome, Edge, Brave, and Comet are fetched live from public APIs. Vivaldi, Opera, and Atlas are read from `ci-versions.json`, which is updated daily by GitHub Actions. Manual overrides in `manual-versions.json` take priority over both.
+`index.html` is a static page that calls `/api` on load. `/api` is a Cloudflare Pages Function (`functions/api.js`) that returns version data as NDJSON. Chrome, Edge, Brave, and Comet are fetched live from public APIs. Vivaldi, Opera, and ChatGPT Atlas are read from `ci-versions.json`, which is updated daily by GitHub Actions. Manual overrides in `manual-versions.json` take priority over both.
 
 ### Version data priority
 
 For live-fetched browsers (Chrome, Edge, Brave): manual override > live API fetcher.
 
-For CI-detected browsers (Vivaldi, Opera, Comet, Atlas): manual override > CI version.
+For CI-detected browsers (Vivaldi, Opera, Comet, ChatGPT Atlas): manual override > CI version.
 
 ### CI automation
 
-A GitHub Actions workflow (`.github/workflows/update-versions.yml`) runs daily at 08:00 UTC. It downloads browser binaries, extracts the Chromium version using `strings` (for .deb packages) or plist extraction (for Atlas DMG), writes the results to `ci-versions.json`, and commits if anything changed. Can also be triggered manually via `workflow_dispatch`.
+A GitHub Actions workflow (`.github/workflows/update-versions.yml`) runs daily at 08:00 UTC. It downloads browser binaries, extracts the Chromium version using `strings` (for .deb packages) or plist extraction (for ChatGPT Atlas DMG), writes the results to `ci-versions.json`, and commits if anything changed. Can also be triggered manually via `workflow_dispatch`.
 
 ## Local development
 

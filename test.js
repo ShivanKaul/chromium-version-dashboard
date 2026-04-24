@@ -225,6 +225,48 @@ await test("Brave versions.json: finds release channel entry", () => {
   assert(found.dependencies.chrome === "147.0.7727.102", "should have chrome dep");
 });
 
+await test("Arc appcast: extracts Chromium version from description", () => {
+  const xml = `<rss><channel>
+    <item>
+      <sparkle:version>79514</sparkle:version>
+      <description><![CDATA[This update carries Arc forward to Chromium 147.0.7727.117, patching security vulnerabilities.]]></description>
+      <enclosure url="https://releases.arc.net/release/Arc-1.144.0-79514.zip"/>
+    </item>
+    <item>
+      <sparkle:version>79250</sparkle:version>
+      <description><![CDATA[This release takes Arc to Chromium 147.0.7727.102.]]></description>
+      <enclosure url="https://releases.arc.net/release/Arc-1.143.2-79250.zip"/>
+    </item>
+  </channel></rss>`;
+  const items = [...xml.matchAll(
+    /<item>[\s\S]*?<sparkle:version>(\d+)<\/sparkle:version>[\s\S]*?<\/item>/g
+  )];
+  assert(items.length === 2, "should find 2 items");
+  items.sort((a, b) => Number(b[1]) - Number(a[1]));
+  assert(items[0][1] === "79514", "should pick highest build");
+  const cm = items[0][0].match(/Chromium\s+(\d+\.\d+\.\d+\.\d+)/i);
+  assert(cm, "should find Chromium version in description");
+  assert(cm[1] === "147.0.7727.117", "should extract correct version");
+});
+
+await test("Dia appcast: extracts ZIP URL from highest build", () => {
+  const xml = `<rss><channel>
+    <item><version xmlns="http://www.andymatuschak.org/xml-namespaces/sparkle">79000</version>
+      <enclosure url="https://releases.diabrowser.com/release/Dia-1.26.0-79000.zip"/>
+      <deltas xmlns="http://www.andymatuschak.org/xml-namespaces/sparkle"><enclosure url="https://releases.diabrowser.com/delta/Dia-from-78900-to-79000.delta"/></deltas>
+    </item>
+    <item><version xmlns="http://www.andymatuschak.org/xml-namespaces/sparkle">79513</version>
+      <enclosure url="https://releases.diabrowser.com/release/Dia-1.28.0-79513.zip"/>
+    </item>
+  </channel></rss>`;
+  const items = [...xml.matchAll(
+    /<item>[\s\S]*?<(?:sparkle:)?version[^>]*>(\d+)<\/(?:sparkle:)?version>[\s\S]*?url="([^"]+\.zip)"[\s\S]*?<\/item>/g
+  )];
+  assert(items.length === 2, "should find 2 items");
+  items.sort((a, b) => Number(b[1]) - Number(a[1]));
+  assert(items[0][2] === "https://releases.diabrowser.com/release/Dia-1.28.0-79513.zip", "should pick highest build ZIP");
+});
+
 // ---------------------------------------------------------------------------
 // Integration tests: real API calls
 // ---------------------------------------------------------------------------
@@ -373,6 +415,31 @@ await test("Atlas: Sparkle appcast has DMG enclosure", async () => {
   assert(items.length > 0, "should have at least one item with a DMG URL");
   items.sort((a, b) => Number(b[1]) - Number(a[1]));
   assert(items[0][2].startsWith("https://"), "DMG URL should be HTTPS");
+});
+
+await test("Arc: Sparkle appcast has Chromium version in description", async () => {
+  const r = await f("https://releases.arc.net/updates.xml");
+  const xml = await r.text();
+  const items = [...xml.matchAll(
+    /<item>[\s\S]*?<sparkle:version>(\d+)<\/sparkle:version>[\s\S]*?<\/item>/g
+  )];
+  assert(items.length > 0, "should have at least one item");
+  items.sort((a, b) => Number(b[1]) - Number(a[1]));
+  const cm = items[0][0].match(/Chromium\s+(\d+\.\d+\.\d+\.\d+)/i);
+  assert(cm, "latest item should mention Chromium version");
+  const major = parseInt(cm[1], 10);
+  assert(major >= 100 && major <= 250, "Chromium major should be in range, got " + major);
+});
+
+await test("Dia: Sparkle appcast has ZIP enclosure", async () => {
+  const r = await f("https://releases.diabrowser.com/BoostBrowser-updates.xml");
+  const xml = await r.text();
+  const items = [...xml.matchAll(
+    /<item>[\s\S]*?<(?:sparkle:)?version[^>]*>(\d+)<\/(?:sparkle:)?version>[\s\S]*?url="([^"]+\.zip)"[\s\S]*?<\/item>/g
+  )];
+  assert(items.length > 0, "should have at least one item with a ZIP URL");
+  items.sort((a, b) => Number(b[1]) - Number(a[1]));
+  assert(items[0][2].startsWith("https://"), "ZIP URL should be HTTPS");
 });
 
 // ---------------------------------------------------------------------------

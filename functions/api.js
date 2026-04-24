@@ -90,6 +90,23 @@ async function comet() {
   throw new Error("not found");
 }
 
+// --- Arc ---
+async function arc() {
+  const r = await f("https://releases.arc.net/updates.xml");
+  const xml = await r.text();
+  // Each appcast item description mentions the Chromium version (Arc is in
+  // maintenance mode, so every release is a Chromium security update).
+  const items = [...xml.matchAll(
+    /<item>[\s\S]*?<sparkle:version>(\d+)<\/sparkle:version>[\s\S]*?<\/item>/g
+  )];
+  if (!items.length) throw new Error("No items in appcast");
+  items.sort((a, b) => Number(b[1]) - Number(a[1]));
+  const latest = items[0][0];
+  const cm = latest.match(/Chromium\s+(\d+\.\d+\.\d+\.\d+)/i);
+  if (!cm) throw new Error("Chromium version not found in appcast");
+  return ok("Arc", cm[1], parseInt(cm[1], 10), "source: Sparkle appcast (releases.arc.net)");
+}
+
 // --- Handler ---
 
 // Browsers with live API fetchers (run at request time)
@@ -98,6 +115,7 @@ const fetchers = [
   { name: "Edge", key: "edge", fn: edge },
   { name: "Brave Release", key: "brave", fn: brave },
   { name: "Comet", key: "comet", fn: comet },
+  { name: "Arc", key: "arc", fn: arc },
 ];
 
 // Browsers whose versions come from CI (extracted from binaries daily).
@@ -106,6 +124,7 @@ const ciBrowsers = [
   { name: "Vivaldi Release", key: "vivaldi" },
   { name: "Opera", key: "opera" },
   { name: "Atlas", key: "atlas" },
+  { name: "Dia", key: "dia" },
 ];
 
 function fromEntry(name, entry, sourcePrefix) {

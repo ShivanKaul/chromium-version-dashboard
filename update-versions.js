@@ -5,6 +5,7 @@
 //   Opera    -- download .deb, run strings on binary
 //   Vivaldi  -- download .deb, run strings on binary
 //   Atlas    -- download macOS DMG via Sparkle appcast, extract plist
+//   Dia      -- download macOS ZIP via Sparkle appcast, run strings on binary
 //
 // Requires: Node 20+, p7zip-full (for .deb and Atlas DMG extraction)
 // Usage:    node update-versions.js
@@ -306,6 +307,96 @@ async function detectAtlas() {
   }
 }
 
+async function detectDia() {
+  console.log("[Dia] Fetching Sparkle appcast...");
+  const r = await f("https://releases.diabrowser.com/BoostBrowser-updates.xml");
+  const xml = await r.text();
+
+  // Each <item> has a version element and <enclosure url="...zip" .../>.
+  // Version tag may be <sparkle:version> or <version xmlns="...">.
+  const items = [...xml.matchAll(
+    /<item>[\s\S]*?<(?:sparkle:)?version[^>]*>(\d+)<\/(?:sparkle:)?version>[\s\S]*?url="([^"]+\.zip)"[\s\S]*?<\/item>/g
+  )];
+  if (!items.length) throw new Error("No ZIP items in appcast");
+  items.sort((a, b) => Number(b[1]) - Number(a[1]));
+  const zipUrl = items[0][2];
+  console.log("  ZIP URL: " + zipUrl + " (build " + items[0][1] + ")");
+
+  // Download the ZIP
+  console.log("  Downloading ZIP...");
+  const zipResp = await f(zipUrl, {}, DMG_TIMEOUT);
+  const buf = Buffer.from(await zipResp.arrayBuffer());
+  const tmp = mkdtempSync(join(tmpdir(), "dia-"));
+  const zipPath = join(tmp, "dia.zip");
+  writeFileSync(zipPath, buf);
+  console.log("  Downloaded " + (buf.length / 1024 / 1024).toFixed(1) + " MB");
+
+  try {
+    // Extract with 7z
+    const extractDir = join(tmp, "extracted");
+    execSync(`${SZ} x -o"${extractDir}" "${zipPath}" -y 2>&1`, {
+      timeout: 120_000,
+    });
+
+    // Find the main binary in the app bundle
+    let binaryPath;
+    for (const name of ["Dia", "BoostBrowser"]) {
+      const findCmd = `find "${extractDir}" -path "*/Contents/MacOS/${name}" -type f 2>&1 | head -1`;
+      binaryPath = execSync(findCmd, { encoding: "utf8", timeout: 10_000 }).trim();
+      if (binaryPath) break;
+    }
+    if (!binaryPath) {
+      const fallbackCmd = `find "${extractDir}" -path "*/Contents/MacOS/*" -type f 2>&1 | head -1`;
+      binaryPath = execSync(fallbackCmd, { encoding: "utf8", timeout: 10_000 }).trim();
+    }
+    if (!binaryPath) throw new Error("Binary not found in ZIP");
+    console.log("  Binary: " + binaryPath.split("/").slice(-3).join("/"));
+
+    // Extract Chrome/X.X.X.X from the binary using strings
+    const cmd =
+      `strings "${binaryPath}"` +
+      ` | grep -oE 'Chrome/[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+'` +
+      ` | sort -t/ -k2 -V` +
+      ` | tail -1` +
+      ` | sed 's/Chrome\\///'`;
+    let ver = execSync(cmd, { encoding: "utf8", timeout: 60_000 }).trim();
+
+    // Fallback: broad search for Chromium-like version strings (major >= 100,
+    // third component > 1000) in case Chrome/ token is overridden
+    if (!ver) {
+      console.log("  Chrome/ not found, trying broad search...");
+      const broadCmd =
+        `strings "${binaryPath}"` +
+        ` | grep -oE '\\b1[0-9]{2}\\.[0-9]+\\.[0-9]+\\.[0-9]+\\b'` +
+        ` | sort -u`;
+      const out = execSync(broadCmd, { encoding: "utf8", timeout: 60_000 }).trim();
+      if (out) {
+        const candidates = out.split("\n").filter((v) => {
+          const parts = v.split(".");
+          return parts.length === 4 && parseInt(parts[2], 10) > 1000;
+        });
+        if (candidates.length) {
+          candidates.sort((a, b) => {
+            const pa = a.split(".").map(Number);
+            const pb = b.split(".").map(Number);
+            for (let i = 0; i < 4; i++) {
+              if (pa[i] !== pb[i]) return pa[i] - pb[i];
+            }
+            return 0;
+          });
+          ver = candidates[candidates.length - 1];
+        }
+      }
+    }
+
+    if (!ver) throw new Error("Chrome version not found in binary");
+    console.log("  Found: " + ver);
+    return { chromiumVersion: ver, chromiumMajor: parseInt(ver, 10) };
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -314,6 +405,7 @@ const browsers = [
   { key: "opera", name: "Opera", detect: detectOpera, source: "extracted from Linux .deb binary" },
   { key: "vivaldi", name: "Vivaldi", detect: detectVivaldi, source: "extracted from Linux .deb binary" },
   { key: "atlas", name: "Atlas", detect: detectAtlas, source: "extracted from macOS DMG plist" },
+  { key: "dia", name: "Dia", detect: detectDia, source: "extracted from macOS ZIP binary" },
 ];
 
 const jsonPath = new URL("./ci-versions.json", import.meta.url).pathname;

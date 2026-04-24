@@ -17,13 +17,13 @@ Hosted on Cloudflare Pages.
 
 ### How each version is fetched
 
-**Chrome Stable**: Calls `chromiumdash.appspot.com/fetch_releases` for the latest Windows stable release. The JSON response includes the full version and milestone directly.
+**Chrome Stable**: Calls `chromiumdash.appspot.com/fetch_releases` for the latest macOS stable release. The JSON response includes the full version and milestone directly.
 
 **Brave Release**: Fetches `versions.brave.com/latest/brave-versions.json`, finds the first entry with `channel === "release"`, and reads `dependencies.chrome` for the Chromium version.
 
 **Vivaldi Release**: Two-step. First fetches the Sparkle appcast XML at `update.vivaldi.com` to get the release notes URL. Then fetches that HTML page and regex-matches the Chromium version string (e.g., "[Chromium] Updated to 146.0.7680.211").
 
-**Edge**: Calls `edgeupdates.microsoft.com/api/products`, filters for the "Stable" product and a Windows x64 release. Edge and Chromium share the same major version number, so the Edge version major is the Chromium major. Full Chromium build numbers differ, so only the major is reported.
+**Edge**: Calls `edgeupdates.microsoft.com/api/products`, filters for the "Stable" product and a macOS release.
 
 **Opera**: Two-step, similar to Vivaldi. First fetches the Opera Desktop blog listing at `blogs.opera.com/desktop/` to find the latest major stable release post. Then fetches that post and regex-matches the Chromium version string (e.g., "based on the Chromium version: 146.0.7680.178").
 

@@ -4,7 +4,7 @@ Which Chromium version is each major browser on?
 
 https://chromium-drift.pages.dev
 
-<img width="889" height="748" alt="chromium-dashboard-screenshot" src="https://github.com/user-attachments/assets/2d44fbb0-21cd-494b-b989-88dea066a8ff" />
+<img width="921" height="742" alt="chromium-dashboard" src="https://github.com/user-attachments/assets/777dde3a-941b-41da-9e76-1ef929a4cc57" />
 
 
 ## Tracked browsers

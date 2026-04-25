@@ -417,6 +417,18 @@ for (const { key, name, detect, source } of browsers) {
       console.log("[" + name + "] No change (Chromium " + result.chromiumMajor + ")\n");
       continue;
     }
+    // Reject version regressions (likely a detection bug)
+    if (prev.chromiumMajor) {
+      const regressed = prev.chromiumVersion && result.chromiumVersion
+        ? versionCompare(result.chromiumVersion, prev.chromiumVersion) < 0
+        : result.chromiumMajor < prev.chromiumMajor;
+      if (regressed) {
+        throw new Error(
+          "detected Chromium " + (result.chromiumVersion || result.chromiumMajor) +
+          " is older than current " + (prev.chromiumVersion || prev.chromiumMajor)
+        );
+      }
+    }
     const entry = { chromiumMajor: result.chromiumMajor, lastUpdated: today, source };
     if (result.chromiumVersion) entry.chromiumVersion = result.chromiumVersion;
     data[key] = entry;

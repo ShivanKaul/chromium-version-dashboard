@@ -57,7 +57,7 @@ async function edge() {
     s.Releases[0];
   if (!rel) throw new Error("no release");
   const major = parseInt(rel.ProductVersion, 10);
-  return ok("Edge", rel.ProductVersion, major, "source: public API (edgeupdates.microsoft.com, macOS)");
+  return ok("Edge Stable", rel.ProductVersion, major, "source: public API (edgeupdates.microsoft.com, macOS)");
 }
 
 // --- Brave ---
@@ -112,7 +112,7 @@ async function arc() {
 // Browsers with live API fetchers (run at request time)
 const fetchers = [
   { name: "Chrome Stable", key: "chrome", fn: chrome },
-  { name: "Edge", key: "edge", fn: edge },
+  { name: "Edge Stable", key: "edge", fn: edge },
   { name: "Brave Release", key: "brave", fn: brave },
   { name: "Comet", key: "comet", fn: comet },
   { name: "Arc", key: "arc", fn: arc },
@@ -121,9 +121,9 @@ const fetchers = [
 // Browsers whose versions come from CI (extracted from binaries daily).
 // Manual overrides in manual-versions.json take priority over CI values.
 const ciBrowsers = [
-  { name: "Vivaldi Release", key: "vivaldi" },
-  { name: "Opera", key: "opera" },
-  { name: "Atlas", key: "atlas" },
+  { name: "Vivaldi Stable", key: "vivaldi" },
+  { name: "Opera Stable", key: "opera" },
+  { name: "ChatGPT Atlas", key: "atlas" },
   { name: "Dia", key: "dia" },
 ];
 

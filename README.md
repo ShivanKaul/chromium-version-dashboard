@@ -1,6 +1,6 @@
 # Chromium Drift
 
-Which Chromium version is each major browser on?
+How far behind is each major Chromium browser?
 
 https://chromium-drift.pages.dev
 

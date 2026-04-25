@@ -393,9 +393,9 @@ async function detectDia() {
 // ---------------------------------------------------------------------------
 
 const browsers = [
-  { key: "opera", name: "Opera", detect: detectOpera, source: "extracted from Linux .deb binary" },
-  { key: "vivaldi", name: "Vivaldi", detect: detectVivaldi, source: "extracted from Linux .deb binary" },
-  { key: "atlas", name: "Atlas", detect: detectAtlas, source: "extracted from macOS DMG plist" },
+  { key: "opera", name: "Opera Stable", detect: detectOpera, source: "extracted from Linux .deb binary" },
+  { key: "vivaldi", name: "Vivaldi Stable", detect: detectVivaldi, source: "extracted from Linux .deb binary" },
+  { key: "atlas", name: "ChatGPT Atlas", detect: detectAtlas, source: "extracted from macOS DMG plist" },
   { key: "dia", name: "Dia", detect: detectDia, source: "extracted from macOS ZIP binary" },
 ];
 

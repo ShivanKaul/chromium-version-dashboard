@@ -315,6 +315,16 @@ await test("Dia appcast: extracts ZIP URL from highest build", () => {
   assert(items[0][2] === "https://releases.diabrowser.com/release/Dia-1.28.0-79513.zip", "should pick highest build ZIP");
 });
 
+await test("Wavebox .deb binary path is stable", () => {
+  const files = [
+    "./opt/wavebox.io/wavebox/chrome-sandbox",
+    "./opt/wavebox.io/wavebox/wavebox",
+    "./opt/wavebox.io/wavebox/wavebox-launcher",
+  ];
+  const binary = files.find((p) => p === "./opt/wavebox.io/wavebox/wavebox");
+  assert(binary, "should find Wavebox binary path");
+});
+
 // ---------------------------------------------------------------------------
 // Integration tests: real API calls
 // ---------------------------------------------------------------------------
@@ -498,6 +508,16 @@ await test("Dia: Sparkle appcast has ZIP enclosure", async () => {
   assert(items.length > 0, "should have at least one item with a ZIP URL");
   items.sort((a, b) => Number(b[1]) - Number(a[1]));
   assert(items[0][2].startsWith("https://"), "ZIP URL should be HTTPS");
+});
+
+await test("Wavebox: latest Linux .deb endpoint resolves to package", async () => {
+  const r = await f("https://download.wavebox.app/latest/stable/linux/deb", {
+    method: "HEAD",
+    redirect: "follow",
+  });
+  assert(r.url.endsWith(".deb"), "final URL should be a .deb");
+  const len = parseInt(r.headers.get("content-length") || "0", 10);
+  assert(len > 100 * 1024 * 1024, "package should have a realistic content length");
 });
 
 // ---------------------------------------------------------------------------

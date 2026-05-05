@@ -6,6 +6,7 @@
 //   Vivaldi  -- download .deb, run strings on binary
 //   Atlas    -- download macOS DMG via Sparkle appcast, extract plist
 //   Dia      -- download macOS ZIP via Sparkle appcast, run strings on binary
+//   Wavebox  -- download .deb, run strings on binary
 //
 // Requires: Node 20+, p7zip-full (for .deb and Atlas DMG extraction)
 // Usage:    node update-versions.js
@@ -84,23 +85,26 @@ async function downloadDeb(url, label) {
   return { path, tmp };
 }
 
-// Extract data.tar from a .deb using 7z. 7z auto-decompresses xz, so the
-// result is always a plain data.tar. Works on both macOS and Linux (unlike
-// BSD ar on macOS which can't handle some .deb formats).
+// Extract data.tar from a .deb using 7z. Works on both macOS and Linux
+// (unlike BSD ar on macOS which can't handle some .deb formats).
 function extractDataTar(debPath, tmpDir) {
   const dataDir = join(tmpDir, "deb-data");
   execSync(`${SZ} x -o"${dataDir}" "${debPath}" -y 2>&1`, {
     timeout: 60_000,
   });
-  // 7z auto-decompresses xz, so we get data.tar (not data.tar.xz)
   const tarPath = join(dataDir, "data.tar");
-  try {
-    readFileSync(tarPath, { flag: "r" });
-    return tarPath;
-  } catch {
-    // Fallback: maybe 7z kept it as data.tar.xz
-    return join(dataDir, "data.tar.xz");
+  try { readFileSync(tarPath, { flag: "r" }); return tarPath; } catch {}
+
+  for (const compressed of ["data.tar.xz", "data.tar.zst"]) {
+    const compressedPath = join(dataDir, compressed);
+    try { readFileSync(compressedPath, { flag: "r" }); } catch { continue; }
+    execSync(`${SZ} x -o"${dataDir}" "${compressedPath}" -y 2>&1`, {
+      timeout: 60_000,
+    });
+    try { readFileSync(tarPath, { flag: "r" }); return tarPath; } catch {}
+    return compressedPath;
   }
+  throw new Error("data.tar not found in .deb");
 }
 
 // Compare two dotted version strings (e.g., "147.0.7727.117" > "146.0.7680.201").
@@ -113,8 +117,9 @@ function versionCompare(a, b) {
   return 0;
 }
 
-// Tar flag: -J for .xz, nothing for plain .tar
+// Tar flag: -J for .xz, --zstd for .zst, nothing for plain .tar
 function tarFlag(path) {
+  if (path.endsWith(".zst")) return "--zstd -xf";
   return path.endsWith(".xz") ? "-xJf" : "-xf";
 }
 
@@ -222,6 +227,23 @@ async function detectVivaldi() {
       console.log("  Standard extraction failed, trying broad search...");
       ver = extractChromeVersionBroadSearch(dataTar, binaryPath);
     }
+    console.log("  Found: " + ver);
+    return { chromiumVersion: ver, chromiumMajor: parseInt(ver, 10) };
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+async function detectWavebox() {
+  const url = "https://download.wavebox.app/latest/stable/linux/deb";
+  const { path, tmp } = await downloadDeb(url, "wavebox");
+  try {
+    console.log("  Extracting Chromium version...");
+    const dataTar = extractDataTar(path, tmp);
+    const ver = extractChromeVersionFromDeb(
+      dataTar,
+      "./opt/wavebox.io/wavebox/wavebox"
+    );
     console.log("  Found: " + ver);
     return { chromiumVersion: ver, chromiumMajor: parseInt(ver, 10) };
   } finally {
@@ -419,6 +441,7 @@ const browsers = [
   { key: "vivaldi", name: "Vivaldi Stable", detect: detectVivaldi, source: "extracted from Linux .deb binary" },
   { key: "atlas", name: "ChatGPT Atlas", detect: detectAtlas, source: "extracted from macOS DMG plist" },
   { key: "dia", name: "Dia", detect: detectDia, source: "extracted from macOS ZIP binary" },
+  { key: "wavebox", name: "Wavebox", detect: detectWavebox, source: "extracted from Linux .deb binary" },
 ];
 
 const jsonPath = new URL("../ci-versions.json", import.meta.url).pathname;

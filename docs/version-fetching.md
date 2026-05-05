@@ -43,3 +43,7 @@ Fetches the Sparkle appcast to find the latest DMG URL, downloads the DMG, extra
 ### Dia
 
 Fetches the Sparkle appcast at `releases.diabrowser.com/BoostBrowser-updates.xml` to find the latest ZIP URL, downloads the macOS ZIP, extracts the app binary using 7z, and runs `strings` to find the embedded `Chrome/X.X.X.X` UA string.
+
+### Wavebox
+
+Downloads the Wavebox Linux .deb package from `download.wavebox.app`, extracts the `wavebox` binary, and uses `strings` to find the embedded `Chrome/X.X.X.X` UA string.

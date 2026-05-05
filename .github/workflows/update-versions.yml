@@ -25,7 +25,7 @@ jobs:
         run: node .github/update-versions.js
 
       - name: Validate ci-versions.json
-        run: node test/validate-manual-versions.js ci-versions.json
+        run: node test/validate-versions.js ci-versions.json
 
       - name: Record daily snapshot
         run: node .github/snapshot-versions.js

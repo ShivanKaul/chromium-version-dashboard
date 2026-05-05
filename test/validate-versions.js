@@ -1,10 +1,10 @@
-// Validates a versions JSON file (manual-versions.json or ci-versions.json).
+// Validates a versions JSON file (e.g. ci-versions.json).
 // Each key must be either an empty object or have both chromiumMajor (number) and lastUpdated (string).
-// Usage: node validate-manual-versions.js [file]
+// Usage: node validate-versions.js [file]
 
 import { readFile } from "node:fs/promises";
 
-const file = process.argv[2] || "manual-versions.json";
+const file = process.argv[2] || "ci-versions.json";
 const raw = await readFile(file, "utf8");
 const data = JSON.parse(raw);
 let errors = 0;

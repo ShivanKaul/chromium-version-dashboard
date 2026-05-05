@@ -187,25 +187,6 @@ await test("Atlas Sparkle appcast: extracts DMG URL from highest build", () => {
   assert(items[0][2] === "https://example.com/latest.dmg", "should pick highest build");
 });
 
-await test("CI/manual override priority: manual overrides CI", () => {
-  const overrides = { opera: { chromiumMajor: 999, lastUpdated: "2026-01-01" } };
-  const ciVersions = { opera: { chromiumMajor: 146, lastUpdated: "2026-04-24", source: "extracted from Linux .deb binary" } };
-  const ov = overrides["opera"];
-  const ci = ciVersions["opera"];
-  // manual override should win
-  const result = ov?.chromiumMajor ? "manual" : ci?.chromiumMajor ? "ci" : "none";
-  assert(result === "manual", "manual override should take priority");
-});
-
-await test("CI/manual override priority: CI used when no manual override", () => {
-  const overrides = { opera: {} };
-  const ciVersions = { opera: { chromiumMajor: 146, lastUpdated: "2026-04-24", source: "extracted from Linux .deb binary" } };
-  const ov = overrides["opera"];
-  const ci = ciVersions["opera"];
-  const result = ov?.chromiumMajor ? "manual" : ci?.chromiumMajor ? "ci" : "none";
-  assert(result === "ci", "CI version should be used when no manual override");
-});
-
 await test("Chrome schedule: stable_date rollout buffer logic", () => {
   // The chrome() function gets today in PT as YYYY-MM-DD and checks
   // todayPT > stableDate (strictly after), giving a 1-day buffer.

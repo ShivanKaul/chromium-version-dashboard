@@ -1,5 +1,5 @@
 // update-versions.js -- Detect Chromium versions for browsers that lack
-// reliable public APIs, and write the results to manual-versions.json.
+// reliable public APIs, and write the results to ci-versions.json.
 //
 // Browsers handled:
 //   Opera    -- download .deb, run strings on binary

@@ -10,14 +10,7 @@ function fromEntry(name, entry, sourcePrefix) {
 }
 
 export async function onRequestGet(context) {
-  let overrides = {};
   let ciVersions = {};
-  try {
-    const mr = await context.env.ASSETS.fetch(
-      new URL("/manual-versions.json", context.request.url)
-    );
-    if (mr.ok) overrides = await mr.json();
-  } catch (_) {}
   try {
     const cr = await context.env.ASSETS.fetch(
       new URL("/ci-versions.json", context.request.url)
@@ -31,13 +24,9 @@ export async function onRequestGet(context) {
 
   const fetchedAt = Date.now();
 
-  // Live-fetched browsers (manual override takes priority)
+  // Live-fetched browsers
   const livePromises = fetchers.map((x) => {
-    const ov = overrides[x.key];
-    const p = ov?.chromiumMajor
-      ? Promise.resolve(fromEntry(x.name, ov, "manual override"))
-      : x.fn();
-    return p.then(
+    return x.fn().then(
       (result) => writer.write(encoder.encode(JSON.stringify(result) + "\n")),
       (err) =>
         writer.write(
@@ -54,14 +43,11 @@ export async function onRequestGet(context) {
     );
   });
 
-  // CI-detected browsers (manual override > CI version)
+  // CI-detected browsers
   const ciPromises = ciBrowsers.map((x) => {
-    const ov = overrides[x.key];
     const ci = ciVersions[x.key];
     let result;
-    if (ov?.chromiumMajor) {
-      result = fromEntry(x.name, ov, "manual override");
-    } else if (ci?.chromiumMajor) {
+    if (ci?.chromiumMajor) {
       result = fromEntry(x.name, ci, ci.source || "CI");
     } else {
       result = {

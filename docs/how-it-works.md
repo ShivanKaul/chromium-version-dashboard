@@ -1,6 +1,6 @@
 # How it works
 
-`index.html` is a static page that calls `/api` on load. `/api` is a Cloudflare Pages Function (`functions/api.js`) that returns version data as NDJSON. Some browser versions are fetched live from public APIs/feeds or scraped from websites. Others are read from `ci-versions.json`, which is updated daily by a GitHub Action. Manual overrides in `manual-versions.json` take priority over both.
+`index.html` is a static page that calls `/api` on load. `/api` is a Cloudflare Pages Function (`functions/api.js`) that returns version data as NDJSON. Some browser versions are fetched live from public APIs/feeds or scraped from websites. Others are read from `ci-versions.json`, which is updated daily by a GitHub Action.
 
 See [version-fetching.md](version-fetching.md) for details on how each browser is handled.
 

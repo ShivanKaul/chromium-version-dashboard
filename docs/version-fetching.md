@@ -48,4 +48,12 @@ Fetches the Sparkle appcast at `releases.diabrowser.com/BoostBrowser-updates.xml
 
 ### Helium
 
-Fetches the latest GitHub release from `api.github.com/repos/imputnet/helium/releases/latest`, reads the `tag_name`, then fetches the `chromium_version.txt` file at that tag from `raw.githubusercontent.com/imputnet/helium/${tag}/chromium_version.txt`. The file contains the full Chromium version directly.
+Tracks the Chromium version that corresponds to **shipped Linux builds**, not only the [`imputnet/helium`](https://github.com/imputnet/helium) core repo tag:
+
+1. `GET api.github.com/repos/imputnet/helium-linux/releases/latest` for [`helium-linux` releases](https://github.com/imputnet/helium-linux/releases).
+
+2. Read `tag_name` from that release JSON.
+
+3. Read the `helium-chromium` submodule entry at `GET .../contents/helium-chromium?ref={tag_name}`.
+
+4. Use that entry's `sha` (which points at the subtree in `imputnet/helium`) to fetch `raw.githubusercontent.com/imputnet/helium/{submoduleSha}/chromium_version.txt`.

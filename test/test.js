@@ -566,20 +566,30 @@ await test("Dia: Sparkle appcast has ZIP enclosure", async () => {
   assert(items[0][2].startsWith("https://"), "ZIP URL should be HTTPS");
 });
 
-await test("Helium: GitHub releases API returns tag_name", async () => {
+await test("Helium: helium-linux releases/latest has tag_name", async () => {
   const ghHeaders = { "User-Agent": "chromium-drift/1.0", "Accept": "application/vnd.github+json" };
-  const r = await f("https://api.github.com/repos/imputnet/helium/releases/latest", { headers: ghHeaders });
+  const r = await f("https://api.github.com/repos/imputnet/helium-linux/releases/latest", { headers: ghHeaders });
   const release = await r.json();
   assert(release.tag_name, "should have tag_name");
-  assert(/^\d+\.\d+\.\d+$/.test(release.tag_name), "tag should be semver-like, got " + release.tag_name);
+  assert(/^\d+\.\d+/.test(release.tag_name), "tag should look like a version, got " + release.tag_name);
 });
 
-await test("Helium: chromium_version.txt at release tag has valid version", async () => {
+await test("Helium: linux tag + submodule → chromium_version.txt", async () => {
   const ghHeaders = { "User-Agent": "chromium-drift/1.0", "Accept": "application/vnd.github+json" };
-  const r = await f("https://api.github.com/repos/imputnet/helium/releases/latest", { headers: ghHeaders });
-  const release = await r.json();
+  const relR = await f("https://api.github.com/repos/imputnet/helium-linux/releases/latest", { headers: ghHeaders });
+  const release = await relR.json();
   const tag = release.tag_name;
-  const vr = await f("https://raw.githubusercontent.com/imputnet/helium/" + tag + "/chromium_version.txt");
+  assert(tag, "need tag_name");
+
+  const contentUrl =
+    "https://api.github.com/repos/imputnet/helium-linux/contents/helium-chromium?ref=" +
+    encodeURIComponent(tag);
+  const contentR = await f(contentUrl, { headers: ghHeaders });
+  const contentData = await contentR.json();
+  const submoduleSha = contentData.sha;
+  assert(submoduleSha && /^[0-9a-f]{40}$/.test(submoduleSha), "submodule sha should be 40 hex chars");
+
+  const vr = await f("https://raw.githubusercontent.com/imputnet/helium/" + submoduleSha + "/chromium_version.txt");
   const ver = (await vr.text()).trim();
   assert(/^\d+\.\d+\.\d+\.\d+$/.test(ver), "version should be x.x.x.x format, got " + ver);
   const major = parseInt(ver, 10);

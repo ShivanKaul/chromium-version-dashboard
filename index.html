@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,8 +24,8 @@
       --error: #dc2626;
       --gray: #94a3b8;
       --gray-bg: #f1f5f9;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
       --font-sans: system-ui, -apple-system, sans-serif;
       --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, 'Cascadia Code', 'Consolas', monospace;
     }
@@ -40,15 +41,22 @@
         --warn-bg: #422006;
         --bad-bg: #4c0519;
         --gray-bg: #1e293b;
-        --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
-        --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
-      .delta-0, .delta-1, .delta-3 {
-        background: rgba(0,0,0,0.5);
+
+      .delta-0,
+      .delta-1,
+      .delta-3 {
+        background: rgba(0, 0, 0, 0.5);
       }
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
       font-family: var(--font-sans);
@@ -71,18 +79,24 @@
       padding: 32px 0;
       box-shadow: var(--shadow-sm);
     }
+
     header h1 {
       font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.5px;
       margin-bottom: 6px;
     }
+
     header .subtitle {
       color: var(--text-muted);
       font-size: 15px;
       line-height: 1.5;
     }
-    header .subtitle a { color: var(--accent); text-decoration: underline; }
+
+    header .subtitle a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
 
     .toolbar {
       display: flex;
@@ -91,11 +105,13 @@
       padding: 20px 0;
       flex-wrap: wrap;
     }
+
     .toolbar .meta {
       color: var(--text-muted);
       font-size: 13px;
       font-variant-numeric: tabular-nums;
     }
+
     .toolbar button {
       background: var(--accent);
       color: #fff;
@@ -107,13 +123,26 @@
       font-weight: 600;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
-      box-shadow: 0 1px 3px rgba(37,99,235,0.3);
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
     }
-    .toolbar button:hover { background: #1d4ed8; }
-    .toolbar button:active { transform: scale(0.97); }
-    .toolbar button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-    main { padding: 0 0 64px; }
+    .toolbar button:hover {
+      background: #1d4ed8;
+    }
+
+    .toolbar button:active {
+      transform: scale(0.97);
+    }
+
+    .toolbar button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    main {
+      padding: 0 0 64px;
+    }
 
     .grid {
       display: grid;
@@ -133,14 +162,32 @@
       box-shadow: var(--shadow-sm);
       cursor: pointer;
     }
+
     .card:hover {
       box-shadow: var(--shadow-md);
       transform: translateY(-1px);
     }
-    .card.reference { border-color: var(--accent); border-width: 2px; }
-    .card.card-good { background: var(--good-bg); border-color: var(--good); }
-    .card.card-warn { background: var(--warn-bg); border-color: var(--warn); }
-    .card.card-bad { background: var(--bad-bg); border-color: var(--bad); }
+
+    .card.reference {
+      border-color: var(--accent);
+      border-width: 2px;
+    }
+
+    .card.card-good {
+      background: var(--good-bg);
+      border-color: var(--good);
+    }
+
+    .card.card-warn {
+      background: var(--warn-bg);
+      border-color: var(--warn);
+    }
+
+    .card.card-bad {
+      background: var(--bad-bg);
+      border-color: var(--bad);
+    }
+
     .card .browser-name {
       font-size: 14px;
       font-weight: 600;
@@ -152,11 +199,18 @@
       letter-spacing: 0.3px;
       color: var(--text-muted);
     }
+
     .card .browser-name .ref-badge {
-      font-size: 9px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.6px; background: var(--accent); color: #fff;
-      padding: 2px 8px; border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
     }
+
     .card .cr-major {
       font-family: var(--font-mono);
       font-size: 48px;
@@ -165,6 +219,7 @@
       margin-bottom: 6px;
       letter-spacing: -1px;
     }
+
     .card .cr-full {
       font-family: var(--font-mono);
       font-size: 13px;
@@ -173,16 +228,46 @@
       min-height: 18px;
       letter-spacing: -0.3px;
     }
+
     .card .delta {
-      display: inline-block; font-size: 12px; font-weight: 600;
-      padding: 4px 12px; border-radius: 20px;
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
     }
-    .delta-0 { background: rgba(255,255,255,0.85); color: var(--good); }
-    .delta-1 { background: rgba(255,255,255,0.85); color: var(--warn); }
-    .delta-3 { background: rgba(255,255,255,0.85); color: var(--bad); }
-    .delta-unknown { background: var(--gray-bg); color: var(--gray); }
-    .status-icon { margin-right: 4px; vertical-align: -1px; }
-    .card .source { margin-top: 14px; font-size: 11px; color: var(--text-muted); }
+
+    .delta-0 {
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--good);
+    }
+
+    .delta-1 {
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--warn);
+    }
+
+    .delta-3 {
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--bad);
+    }
+
+    .delta-unknown {
+      background: var(--gray-bg);
+      color: var(--gray);
+    }
+
+    .status-icon {
+      margin-right: 4px;
+      vertical-align: -1px;
+    }
+
+    .card .source {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
     .card.error-card .cr-major {
       font-family: var(--font-sans);
       font-size: 16px;
@@ -202,16 +287,33 @@
       color: var(--text);
       box-shadow: var(--shadow-sm);
     }
+
     .why-section summary {
       font-weight: 600;
       cursor: pointer;
       font-size: 15px;
       color: var(--text);
     }
-    .why-section summary:hover { color: var(--accent); }
-    .why-section .why-body { margin-top: 12px; }
-    .why-section ul { margin: 8px 0 0 20px; }
-    .why-section li { margin-bottom: 4px; }
+
+    .why-section summary:hover {
+      color: var(--accent);
+    }
+
+    .why-section .why-body {
+      margin-top: 12px;
+    }
+
+    .why-section .why-body p+p {
+      margin-top: 16px;
+    }
+
+    .why-section ul {
+      margin: 8px 0 0 20px;
+    }
+
+    .why-section li {
+      margin-bottom: 4px;
+    }
 
     .check-your-browser {
       display: inline-block;
@@ -221,18 +323,34 @@
       text-decoration: none;
       font-weight: 600;
     }
-    .check-your-browser:hover { text-decoration: underline; }
+
+    .check-your-browser:hover {
+      text-decoration: underline;
+    }
 
     .loading-state {
-      text-align: center; padding: 80px 20px;
-      color: var(--text-muted); font-size: 15px;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+      font-size: 15px;
     }
+
     .spinner {
-      display: inline-block; width: 28px; height: 28px;
-      border: 3px solid var(--border); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px;
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 12px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
@@ -242,21 +360,39 @@
       color: transparent !important;
       user-select: none;
     }
-    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    @keyframes shimmer {
+      to {
+        background-position: -200% 0;
+      }
+    }
 
     @media (max-width: 600px) {
-      .container { padding: 0 16px; }
-      header { padding: 24px 0; }
-      header h1 { font-size: 24px; }
-      .grid { grid-template-columns: 1fr; }
+      .container {
+        padding: 0 16px;
+      }
+
+      header {
+        padding: 24px 0;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="container">
       <h1>Chromium Drift</h1>
-      <div class="subtitle">How far behind is each major Chromium browser? <a href="https://github.com/ShivanKaul/chromium-drift">Check out the GitHub repo.</a></div>
+      <div class="subtitle">How far behind is each major Chromium browser? <a
+          href="https://github.com/ShivanKaul/chromium-drift">Check out the GitHub repo.</a></div>
     </div>
   </header>
 
@@ -267,17 +403,50 @@
     </div>
 
     <main>
-    <details class="why-section">
-      <summary>Why does Chromium version lag matter?</summary>
-      <div class="why-body">
-        <p>When a browser ships an older Chromium version, its users are exposed to known, already-patched security vulnerabilities. Attackers actively exploit these flaws, since the fixes are public in Chromium's source but not yet shipped to users of the lagging browser. Plus, users on older Chromium versions don't get the latest Web APIs and features available to websites, resulting in website compatibility issues.</p>
-        <a class="check-your-browser" href="https://chromiumchecker.com" target="_blank" rel="noopener">Check your own browser's Chromium version &#8594;</a>
-      </div>
-    </details>
+      <details class="why-section">
+        <summary>Why does Chromium version lag matter?</summary>
+        <div class="why-body">
+          <p>When a browser ships an older Chromium version, its users may be exposed to known, already-patched security
+            vulnerabilities. Plus, users on older Chromium versions don't get the latest Web APIs and features available
+            to websites, resulting in website compatibility issues.</p>
+          <a class="check-your-browser" href="https://chromiumchecker.com" target="_blank" rel="noopener">Check your own
+            browser's Chromium version &#8594;</a>
+        </div>
+      </details>
 
-    <div id="content">
-      <div id="grid" class="grid"></div>
-    </div>
+      <div id="content">
+        <div id="grid" class="grid"></div>
+      </div>
+
+      <details class="why-section" style="margin-top: 28px;">
+        <summary>FAQ</summary>
+        <div class="why-body">
+          <p><strong>Why does my browser show a different version than this dashboard?</strong><br>
+            Browsers roll out updates gradually. The dashboard shows the version officially designated as stable, but
+            the new version may not be available to all users for a day or two. For Chrome specifically, the dashboard
+            waits until the day after the official stable date before showing a new milestone. You can check your own
+            browser's Chromium version at <a href="https://chromiumchecker.com" target="_blank"
+              rel="noopener">chromiumchecker.com</a>.</p>
+
+          <p><strong>How are these versions detected?</strong><br>
+            Some browsers are fetched live from public APIs on each page load, while others are detected daily via CI by
+            extracting version info from their binaries. See the <a
+              href="https://github.com/ShivanKaul/chromium-drift/blob/main/docs/version-fetching.md">version fetching
+              docs</a> for details.</p>
+
+          <p><strong>How often is this data updated?</strong><br>
+            Live-fetched browsers update on every page load. CI-detected browsers update once daily via GitHub Actions.
+          </p>
+
+          <p><strong>What do the colors mean?</strong><br>
+            Blue = same Chromium major version as Chrome Stable. Yellow = 1 major version behind. Red = 2 or more major
+            versions behind.</p>
+
+          <p><strong>Why isn't my browser listed?</strong><br>
+            The dashboard covers major Chromium-based desktop browsers. If you'd like to see another browser added, <a
+              href="https://github.com/ShivanKaul/chromium-drift/issues">open an issue</a> on the GitHub repo.</p>
+        </div>
+      </details>
     </main>
   </div>
 
@@ -355,10 +524,10 @@
           '<span class="delta ' + dCls(null) + '">' + dLabel(null) + '</span>';
       }
       return '<div class="browser-name">' + esc(e.browser) +
-          (ref ? ' <span class="ref-badge">baseline</span>' : '') + '</div>' +
+        (ref ? ' <span class="ref-badge">baseline</span>' : '') + '</div>' +
         '<div class="cr-major">' + (parseInt(e.chromiumMajor, 10) || "?") + '</div>' +
         '<div class="cr-full">' +
-          (e.chromiumVersion ? esc(e.chromiumVersion) : "") + '</div>' +
+        (e.chromiumVersion ? esc(e.chromiumVersion) : "") + '</div>' +
         '<span class="delta ' + dCls(delta) + '">' + dLabel(delta, ref) + '</span>' +
         '<div class="source">' + esc(e.source) + '</div>';
     }
@@ -379,7 +548,7 @@
         if (ref) c.classList.add("reference");
         c.innerHTML =
           '<div class="browser-name">' + esc(name) +
-            (ref ? ' <span class="ref-badge">baseline</span>' : '') + '</div>' +
+          (ref ? ' <span class="ref-badge">baseline</span>' : '') + '</div>' +
           '<div class="cr-major skeleton">&nbsp;&nbsp;&nbsp;&nbsp;</div>' +
           '<div class="cr-full skeleton">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>' +
           '<span class="delta delta-unknown skeleton">loading</span>';
@@ -492,4 +661,5 @@
     setInterval(() => load(false), 5 * 60 * 1000);
   </script>
 </body>
+
 </html>

@@ -206,11 +206,80 @@ await test("CI/manual override priority: CI used when no manual override", () =>
   assert(result === "ci", "CI version should be used when no manual override");
 });
 
-await test("Chrome schedule: early stable filtered correctly", () => {
-  const futureDate = "2099-01-01T00:00:00";
-  const pastDate = "2020-01-01T00:00:00";
-  assert(new Date(futureDate).getTime() > Date.now(), "future should be > now");
-  assert(new Date(pastDate).getTime() <= Date.now(), "past should be <= now");
+await test("Chrome schedule: stable_date rollout buffer logic", () => {
+  // The chrome() function gets today in PT as YYYY-MM-DD and checks
+  // todayPT > stableDate (strictly after), giving a 1-day buffer.
+  // Simulate the comparison logic here.
+  function stableDatePassed(stableDate, fakeTodayPT) {
+    return fakeTodayPT > stableDate.slice(0, 10);
+  }
+
+  // On the stable_date itself, the version should NOT be considered current
+  assert(!stableDatePassed("2026-05-05", "2026-05-05"), "same day: should not pass");
+
+  // The day after, it should pass
+  assert(stableDatePassed("2026-05-05", "2026-05-06"), "day after: should pass");
+
+  // The day before, it should not pass
+  assert(!stableDatePassed("2026-05-05", "2026-05-04"), "day before: should not pass");
+
+  // Well after the stable_date
+  assert(stableDatePassed("2026-05-05", "2026-06-01"), "month after: should pass");
+
+  // Handles year boundary
+  assert(stableDatePassed("2025-12-31", "2026-01-01"), "year boundary: should pass");
+  assert(!stableDatePassed("2026-01-01", "2025-12-31"), "year boundary: should not pass");
+});
+
+await test("Chrome schedule: todayPT uses America/Los_Angeles timezone", () => {
+  // Verify that toLocaleDateString with en-CA + America/Los_Angeles produces YYYY-MM-DD
+  const todayPT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+  assert(/^\d{4}-\d{2}-\d{2}$/.test(todayPT), "should be YYYY-MM-DD format, got: " + todayPT);
+});
+
+await test("Chrome schedule: handles stableDate with time/timezone suffix", () => {
+  // The API may return dates like "2026-05-05T00:00:00" or with timezone info.
+  // .slice(0, 10) should extract just the date part.
+  function stableDatePassed(stableDate, fakeTodayPT) {
+    return fakeTodayPT > stableDate.slice(0, 10);
+  }
+  assert(!stableDatePassed("2026-05-05T00:00:00", "2026-05-05"), "ISO datetime: same day should not pass");
+  assert(stableDatePassed("2026-05-05T00:00:00", "2026-05-06"), "ISO datetime: day after should pass");
+  assert(!stableDatePassed("2026-05-05T23:59:59Z", "2026-05-05"), "ISO with Z: same day should not pass");
+  assert(stableDatePassed("2026-05-05T23:59:59Z", "2026-05-06"), "ISO with Z: day after should pass");
+  assert(stableDatePassed("2026-05-05T12:00:00-07:00", "2026-05-06"), "ISO with offset: day after should pass");
+});
+
+await test("Chrome schedule: leap year date handling", () => {
+  function stableDatePassed(stableDate, fakeTodayPT) {
+    return fakeTodayPT > stableDate.slice(0, 10);
+  }
+  // Feb 29 in a leap year
+  assert(!stableDatePassed("2028-02-29", "2028-02-29"), "leap day: same day should not pass");
+  assert(stableDatePassed("2028-02-29", "2028-03-01"), "leap day: Mar 1 should pass");
+  assert(!stableDatePassed("2028-02-29", "2028-02-28"), "leap day: Feb 28 should not pass");
+});
+
+await test("Chrome schedule: DST transition dates (spring forward/fall back)", () => {
+  // Spring forward 2026: March 8 (US). Fall back 2026: November 1 (US).
+  // The string comparison approach is immune to DST issues, but verify anyway.
+  function stableDatePassed(stableDate, fakeTodayPT) {
+    return fakeTodayPT > stableDate.slice(0, 10);
+  }
+  // Spring forward
+  assert(!stableDatePassed("2026-03-08", "2026-03-08"), "spring forward day: same day should not pass");
+  assert(stableDatePassed("2026-03-08", "2026-03-09"), "spring forward day: day after should pass");
+  // Fall back
+  assert(!stableDatePassed("2026-11-01", "2026-11-01"), "fall back day: same day should not pass");
+  assert(stableDatePassed("2026-11-01", "2026-11-02"), "fall back day: day after should pass");
+});
+
+await test("Chrome schedule: no stableDate means version is considered current", () => {
+  // When stableDate is null/undefined, the code treats it as already passed.
+  // Mirrors the `!stableDate || ...` check in api.js.
+  const stableDate = null;
+  const passed = !stableDate || "2026-05-06" > "2026-05-05";
+  assert(passed, "null stableDate should be treated as passed");
 });
 
 await test("Brave versions.json: finds release channel entry", () => {

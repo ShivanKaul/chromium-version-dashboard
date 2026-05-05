@@ -37,7 +37,16 @@ async function chrome() {
   const data = await sched.json();
   const stableDate = data.mstones?.[0]?.stable_date;
 
-  if (!stableDate || new Date(stableDate).getTime() <= Date.now()) {
+  // Chrome rolls out gradually, so wait until the day after the official
+  // stable_date (in Pacific Time) before treating the new milestone as current.
+  const stableDatePassed = !stableDate || (() => {
+    // Get today's date in Pacific Time as YYYY-MM-DD
+    const todayPT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+    // The stable_date from the API is a date string (e.g. "2026-05-05").
+    // We require todayPT to be strictly after the stable_date.
+    return todayPT > stableDate.slice(0, 10);
+  })();
+  if (stableDatePassed) {
     return ok("Chrome Stable", latest.version, latest.milestone, "source: public API (chromiumdash.appspot.com, macOS)", "https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Mac&num=10");
   }
   // Latest is still early stable; use previous milestone

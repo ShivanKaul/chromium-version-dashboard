@@ -10,6 +10,8 @@ A GitHub Actions workflow (`.github/workflows/update-versions.yml`) runs daily. 
 
 For the browsers that do have a public API for their releases, I prefer hitting that directly on page load, since I don't want to exceed my monthly GitHub Actions quota. I wish other browsers had a public API for their release versions too.
 
+After updating CI versions, the workflow also records a daily snapshot of all browser versions (live-fetched and CI-detected) to `snapshots.ndjson`.
+
 ## Local development
 
 ```bash

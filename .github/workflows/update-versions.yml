@@ -32,9 +32,9 @@ jobs:
 
       - name: Commit and push if changed
         run: |
-          git diff --quiet ci-versions.json snapshots.ndjson && exit 0
+          git add ci-versions.json snapshots.ndjson
+          git diff --quiet --cached && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ci-versions.json snapshots.ndjson
           git commit -m "Update browser versions ($(date -u +%Y-%m-%d))"
           git push

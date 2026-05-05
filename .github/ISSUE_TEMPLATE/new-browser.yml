@@ -1,0 +1,30 @@
+name: Suggest a new browser
+description: Request a new Chromium-based browser to be tracked on the dashboard.
+labels: ["browser"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! Note that adding new browsers is not being prioritized right now while the site's approach is still being iterated on, but I'll keep this on file.
+  - type: input
+    id: browser-name
+    attributes:
+      label: Browser name
+      placeholder: e.g. Thorium
+    validations:
+      required: true
+  - type: textarea
+    id: version-source
+    attributes:
+      label: How can the Chromium version be determined?
+      description: Link to a public API, update feed, release notes page, or other source where the Chromium version can be found.
+      placeholder: e.g. https://example.com/releases.xml
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else relevant (download page, platform availability, etc.).
+    validations:
+      required: false

@@ -421,12 +421,15 @@
       <details class="why-section" style="margin-top: 28px;">
         <summary>FAQ</summary>
         <div class="why-body">
-          <p><strong>Why does my browser show a different version than this dashboard?</strong><br>
+          <p><strong>Why does my Chromium-based browser show a different version than this dashboard?</strong><br>
             Browsers roll out updates gradually. The dashboard shows the version officially designated as stable, but
             the new version may not be available to all users for a day or two. For Chrome specifically, the dashboard
             waits until the day after the official stable date before showing a new milestone. You can check your own
             browser's Chromium version at <a href="https://chromiumchecker.com" target="_blank"
-              rel="noopener">chromiumchecker.com</a>.</p>
+              rel="noopener">chromiumchecker.com</a>.
+            Some browsers use their own versioning scheme that may not directly line up with Chromium's version numbers
+            (this is also what makes it hard to know which version of Chromium they're based on).
+          </p>
 
           <p><strong>How are these versions detected?</strong><br>
             Some browsers are fetched live from public APIs on each page load, while others are detected daily via CI by
@@ -444,12 +447,16 @@
 
           <p><strong>Does being a major version behind Chrome Stable mean a browser is insecure?</strong><br>
             Not necessarily. Some browsers intentionally track Chromium's Extended Stable channel and backport security
-            fixes from newer releases. Being 1 major version behind on the version number does not always mean missing
-            security patches. This dashboard tracks Chromium major versions, not patch-level security status.</p>
+            fixes from newer releases. Being a major version behind on the version number does not always mean missing
+            security patches.</p>
 
           <p><strong>Why isn't my browser listed?</strong><br>
             The dashboard covers major Chromium-based desktop browsers. If you'd like to see another browser added, <a
-              href="https://github.com/ShivanKaul/chromium-drift/issues">open an issue</a> on the GitHub repo.</p>
+              href="https://github.com/ShivanKaul/chromium-drift/issues">open an issue</a> on the GitHub repo.
+            Shivan's note: I'm still playing around with how to fetch browser versions and how to structure this
+            website,
+            so I won't prioritize adding more browsers until I settle on an approach I like.
+          </p>
         </div>
       </details>
     </main>

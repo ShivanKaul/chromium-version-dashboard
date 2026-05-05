@@ -132,6 +132,7 @@ const ciBrowsers = [
   { name: "Opera Stable", key: "opera" },
   { name: "ChatGPT Atlas", key: "atlas" },
   { name: "Dia", key: "dia" },
+  { name: "Wavebox", key: "wavebox" },
 ];
 
 function fromEntry(name, entry, sourcePrefix) {

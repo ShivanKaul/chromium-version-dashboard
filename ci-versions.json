@@ -12,10 +12,10 @@
     "chromiumVersion": "146.0.7680.226"
   },
   "atlas": {
-    "chromiumMajor": 147,
-    "lastUpdated": "2026-04-24",
+    "chromiumMajor": 148,
+    "lastUpdated": "2026-05-12",
     "source": "extracted from macOS DMG plist",
-    "chromiumVersion": "147.0.7727.24"
+    "chromiumVersion": "148.0.7778.97"
   },
   "dia": {
     "chromiumMajor": 148,
